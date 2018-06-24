@@ -3,14 +3,14 @@ package lexer
 import "monkey/token"
 
 type Lexer struct {
-	input        string
+	input        []rune
 	position     int  // current position in input (points to current char)
 	readPosition int  // current reading position in input (after current char)
-	ch           byte // current char under examination
+	ch           rune // current char under examination
 }
 
 func New(input string) *Lexer {
-	l := &Lexer{input: input}
+	l := &Lexer{input: []rune(input)}
 	l.readChar()
 	return l
 }
@@ -30,7 +30,7 @@ func (l *Lexer) NextToken() token.Token {
 		} else {
 			tok = newToken(token.ASSIGN, l.ch)
 		}
-	case '+':
+	case '+', '🍣':
 		tok = newToken(token.PLUS, l.ch)
 	case '-':
 		tok = newToken(token.MINUS, l.ch)
@@ -68,12 +68,12 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Type = token.EOF
 	default:
 		if isLetter(l.ch) {
-			tok.Literal = l.readIdentifier()
+			tok.Literal = string(l.readIdentifier())
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Type = token.INT
-			tok.Literal = l.readNumber()
+			tok.Literal = string(l.readNumber())
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
@@ -100,7 +100,7 @@ func (l *Lexer) readChar() {
 	l.readPosition += 1
 }
 
-func (l *Lexer) peekChar() byte {
+func (l *Lexer) peekChar() rune {
 	if l.readPosition >= len(l.input) {
 		return 0
 	} else {
@@ -108,7 +108,7 @@ func (l *Lexer) peekChar() byte {
 	}
 }
 
-func (l *Lexer) readIdentifier() string {
+func (l *Lexer) readIdentifier() []rune {
 	position := l.position
 	for isLetter(l.ch) {
 		l.readChar()
@@ -116,7 +116,7 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
-func (l *Lexer) readNumber() string {
+func (l *Lexer) readNumber() []rune {
 	position := l.position
 	for isDigit(l.ch) {
 		l.readChar()
@@ -124,14 +124,14 @@ func (l *Lexer) readNumber() string {
 	return l.input[position:l.position]
 }
 
-func isLetter(ch byte) bool {
+func isLetter(ch rune) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
 
-func isDigit(ch byte) bool {
+func isDigit(ch rune) bool {
 	return '0' <= ch && ch <= '9'
 }
 
-func newToken(tokenType token.TokenType, ch byte) token.Token {
+func newToken(tokenType token.TokenType, ch rune) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }

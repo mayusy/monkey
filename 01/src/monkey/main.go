@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"monkey/repl"
+	"github.com/mayusy/monkey/01/src/monkey/repl"
 	"os"
 	"os/user"
 )
